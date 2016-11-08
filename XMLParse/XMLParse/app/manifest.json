@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+
+  "name": "LumberJack",
+  "description": "This extension makes your XML easier to read.",
+  "version": "1.0",
+  "content_scripts": [
+    {
+      "js": [ "popup.js" ],
+      "matches": [ "https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js" ]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "https://ajax.googleapis.com/"
+  ],
+  "browser_action": {
+    "default_icon": "img/icon.png",
+    "default_popup": "popup.html"
+  }
+}

@@ -1,0 +1,78 @@
+<!doctype html>
+<html ng-app="LumberJack">
+<head>
+    <title>XMLParse</title>
+    
+    <!--Stylesheets-->
+    <link rel="stylesheet" type="text/css" href="../style/bootstrap.min.css" />
+
+    <!--Javascript-->
+    <script type="text/javascript" src="../scripts/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="../scripts/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../scripts/angular.min.js"></script>
+</head>
+<body ng-controller="LumberJackController">
+    <style>
+        body {
+            min-width: 400px;
+        }
+
+        .center {
+            margin: auto;
+            width: 50%;
+            padding: 10px;
+        }
+        .pad{
+            padding: 10px;
+        }
+    </style>
+
+    <br />
+
+    <div class="center">
+        <h4>LumberJack!</h4>
+        <br />
+        <p>Use this tool to nicely format XML.</p>
+    </div>
+
+    <br />
+
+    <div class="center" ng-show="hasBeenParsed">
+        <div class="row">
+            <label for="project_name_filter">Highlight Text: </label>
+            <input id="project_name_filter" type="text" class="form-control" ng-model="filter.textSearch" />
+            <button type="button" class="btn btn-info" ng-click="highlightText()">Highlight Text</button>
+        </div>
+    </div>
+
+    <div class="center" ng-show="!hasBeenParsed">
+        <div class="row pad">
+            <input disabled type="checkbox" ng-model="filter.removeOuterElement"/> <span>Remove outer element on parse</span>
+        </div>
+        <div class="row pad">
+            <label>Block to Parse:</label>
+            <textarea id="text_entry" class="form-control" rows="4" ng-model="parseBlock"></textarea>
+        </div>
+    </div>
+
+    <div class="center" ng-show="hasBeenParsed">
+        <div ng-repeat="outPut in parseOutPut">
+            <div class="col-md-4">
+                <span id="property_output_{{$index}}"><b>Property Name</b>:{{outPut.Name}}</span>
+            </div>
+            <div class="col-md-8">
+                <span id="value_output_{{$index}}"><b>Value</b>: {{outPut.Value}}</span>
+            </div>
+            <br />
+        </div>
+    </div>
+
+    <div class="center">
+        <button ng-show="!hasBeenParsed" ng-click="parse()" class="btn btn-primary" tabindex="-1">Parse</button>
+        <button ng-show="hasBeenParsed" ng-click="clear()" class="btn btn-primary">Clear</button>
+    </div>
+
+    <!--Load JavaScript Main-->
+    <script type="text/javascript" src="popup.js"></script>
+</body>
+</html>
