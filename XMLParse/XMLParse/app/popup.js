@@ -1,10 +1,3 @@
-//TODO: 
-// Allow dynamically choosing the number of elements to group together (Default 2)
-// Allow dynamically choosing to remove the outer element (Default true)
-// Make smart enough to recognize a true tree structure (embedded elements)
-// Make lazy loading, so not all branches have to be loaded at once (4 default, maybe have a click event that loads the next four children down on a clicked section)
-// Allow dynamically choosing the number of children to load at a time (4 default?)
-
 angular.module('LumberJack', [])
       .controller('LumberJackController', function ($scope) {
           $scope.hasBeenParsed = false;
