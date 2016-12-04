@@ -43,6 +43,9 @@
     <Content Include="app\popup.html" />
     <Content Include="app\popup.js" />
     <Content Include="app\scripts\angular.min.js" />
+    <Content Include="app\scripts\node_modules\angular-messages\angular-messages.js" />
+    <Content Include="app\scripts\angular-messages.min.js" />
+    <Content Include="app\scripts\node_modules\angular-messages\index.js" />
     <Content Include="Properties\build\lib\Ionic.Zip.DLL" />
     <Content Include="Properties\build\lib\MSBuild.ExtensionPack.dll" />
     <Content Include="screenshots\screenshot.png" />
@@ -56,6 +59,12 @@
     <Content Include="app\style\bootstrap-responsive.min.css" />
     <Content Include="app\style\bootstrap.css" />
     <Content Include="app\style\bootstrap.min.css" />
+    <Content Include="app\scripts\package.json" />
+    <Content Include="app\scripts\node_modules\angular-messages\angular-messages.min.js.map" />
+    <Content Include="app\scripts\node_modules\angular-messages\bower.json" />
+    <Content Include="app\scripts\node_modules\angular-messages\LICENSE.md" />
+    <Content Include="app\scripts\node_modules\angular-messages\package.json" />
+    <Content Include="app\scripts\node_modules\angular-messages\README.md" />
     <None Include="app\scripts\_references.js" />
     <None Include="app\scripts\chrome-api-vsdoc.js" />
   </ItemGroup>

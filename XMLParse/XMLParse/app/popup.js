@@ -1,90 +1,91 @@
-angular.module('LumberJack', [])
+angular.module('LumberJack', ['ngMessages'])
       .controller('LumberJackController', function ($scope) {
-          $scope.hasBeenParsed = false;
-          $scope.filter = {
-              textSearch: "NewStreamline",
-              removeOuterElement: true
-          };
-          $scope.parse = parse;
-          $scope.clear = clear;
-          $scope.highlightText = highlightText;
 
-          function clear() {
-              $scope.parseBlock = "";
-              $scope.parseOutPut = [];
-              $scope.hasBeenParsed = false;
-          }
+        $scope.hasBeenParsed = false;
+        $scope.filter = {
+            textSearch: "NewStreamline",
+            removeOuterElement: true
+        };
+        $scope.parse = parse;
+        $scope.clear = clear;
+        $scope.highlightText = highlightText;
 
-          //Parses the XML
-          function parse() {
-              var value = $scope.parseBlock;
-              var items = [];
+        function clear() {
+            $scope.parseBlock = "";
+            $scope.parseOutPut = [];
+            $scope.hasBeenParsed = false;
+            $scope.filter.textSearch = "";
+        }
 
-              if ($scope.filter.removeOuterElement) {
-                  //Cut off Outer Element
-                  value = cutOuterElement(value);
-              }
+        function cutElement(value, element) {
+            return value.substring(value.indexOf(element.Name, value.indexOf(element.Name) - 1 + element.TotalLength) + element.TotalLength - 1).trim();
+        }
 
-              while (hasNextElement(value)) {
-                  var element = getOuterElementProperty(value)
-                  items.push(element);
-                  value = cutElement(value, element);
-              }
+        function cutOuterElement(value) {
+            return value.substring(value.indexOf("<", 2), value.lastIndexOf("<", value.lastIndexOf("<"))).trim();
+        }
 
-              $scope.hasBeenParsed = true;
-              $scope.parseOutPut = items;
-          }
+        function getElementValue(value, elementLength) {
+            return value.substring(elementLength, value.indexOf("<", elementLength));
+        }
 
-          function hasNextElement(value) {
-              return value.substring(value.indexOf("<"), value.indexOf("/")).length > 2;
-          }
+        function getOuterElementProperty(value) {
+            var element = {
+                Name: getOuterElementPropertyName(value),
+                TotalLength: getOuterElementPropertyLength(value)
+            };
 
-          function highlightText() {
-              var outputElementIDCounter = 0;
-              var outputElementID = "value_output_" + outputElementIDCounter.toString();
-              var outputElement = document.getElementById(outputElementID);
-              while (outputElement != null) {
-                  var searchedText = $scope.filter.textSearch.trim();
-                  var subString = '<span style="color:red">' + outputElement.innerHTML.substring(outputElement.innerHTML.indexOf(searchedText), outputElement.innerHTML.indexOf(searchedText) + searchedText.length) + '</span>';
-                  var regex = new RegExp(searchedText, "g");
-                  outputElement.innerHTML = outputElement.innerHTML.replace(regex, subString);
+            element.Value = getElementValue(value, element.TotalLength);
 
-                  outputElementID = outputElementID.substring(0, (outputElementID.length - outputElementIDCounter.toString().length)) + (++outputElementIDCounter).toString();
-                  outputElement = document.getElementById(outputElementID);
-              }
-          }
+            return element;
+        }
 
-          function getOuterElementProperty(value) {
-              var element = {
-                  Name: getOuterElementPropertyName(value),
-                  TotalLength: getOuterElementPropertyLength(value)
-              };
+        function getOuterElementPropertyLength(value) {
+            return value.substring(0, value.indexOf(">") + 1).length;
+        }
 
-              element.Value = getElementValue(value, element.TotalLength);
+        function getOuterElementPropertyName(value) {
+            return value.substring(value.indexOf("<") + 1, value.indexOf(">"));
+        }
 
-              return element;
-          }
+        function hasNextElement(value) {
+            return value.substring(value.indexOf("<"), value.indexOf("/")).length > 2;
+        }
 
-          function getOuterElementPropertyLength(value) {
-              return value.substring(0, value.indexOf(">") + 1).length;
-          }
+        function highlightText() {
+            var outputElementIDCounter = 0;
+            var outputElementID = "value_output_" + outputElementIDCounter.toString();
+            var outputElement = document.getElementById(outputElementID);
+            while (outputElement !== null) {
+                var searchedText = $scope.filter.textSearch.trim();
+                var subString = '<span style="color:red">' + outputElement.innerHTML.substring(outputElement.innerHTML.indexOf(searchedText), outputElement.innerHTML.indexOf(searchedText) + searchedText.length) + '</span>';
+                var regex = new RegExp(searchedText, "g");
+                outputElement.innerHTML = outputElement.innerHTML.replace(regex, subString);
 
-          function getOuterElementPropertyName(value) {
-              return value.substring(value.indexOf("<") + 1, value.indexOf(">"));
-          }
+                outputElementID = outputElementID.substring(0, (outputElementID.length - outputElementIDCounter.toString().length)) + (++outputElementIDCounter).toString();
+                outputElement = document.getElementById(outputElementID);
+            }
+        }
 
-          function getElementValue(value, elementLength) {
-              return value.substring(elementLength, value.indexOf("<", elementLength));
-          }
+        function parse() {
+            var value = $scope.parseBlock;
+            var items = [];
 
-          function cutElement(value, element) {
-              return value.substring(value.indexOf(element.Name, value.indexOf(element.Name) - 1 + element.TotalLength) + element.TotalLength - 1).trim();
-          }
+            if ($scope.filter.removeOuterElement) {
+                value = cutOuterElement(value);
+            }
 
-          function cutOuterElement(value) {
-              return value.substring(value.indexOf("<", 2), value.lastIndexOf("<", value.lastIndexOf("<"))).trim();
-          }
-      });
+            while (hasNextElement(value)) {
+                var element = getOuterElementProperty(value)
+                items.push(element);
+                value = cutElement(value, element);
+            }
+
+            $scope.hasBeenParsed = true;
+            $scope.parseOutPut = items;
+        }
+
+    });
 
 
 function init()
