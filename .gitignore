@@ -1,2 +1,3 @@
 XMLParse/XMLParse/app.crx
 *.pem
+/XMLParse/.vs/config/applicationhost.config
