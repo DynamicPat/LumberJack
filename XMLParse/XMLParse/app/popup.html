@@ -9,6 +9,7 @@
     <script type="text/javascript" src="../scripts/bootstrap.min.js"></script>
     <script type="text/javascript" src="../scripts/angular.min.js"></script>
     <script type="text/javascript" src="../scripts/angular-messages.min.js"></script>
+    <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js' type='text/javascript'></script>
 </head>
 <body>
     <style>
@@ -18,11 +19,14 @@
 
         .center {
             margin: auto;
-            width: 50%;
+            width: 75%;
             padding: 10px;
         }
         .pad{
             padding: 10px;
+        }
+        .top_space {
+            padding-top: 50px;
         }
     </style>
 
@@ -30,48 +34,109 @@
 
     <form name="lumberJackForm" ng-controller="LumberJackController">
         <div class="center">
-            <h4>LumberJack! TEST</h4>
+            <img src="../img/icon.png" /><h3>LumberJack!</h3>
             <br />
-            <p>Use this tool to nicely format XML.</p>
+            <p>Use this tool to make error messages more readable. You can also check against any existing stories in Pivotal Tracker that may be related to the entered message.</p>
         </div>
 
         <br />
 
-        <div class="center" ng-show="hasBeenParsed">
-            <div class="row">
-                <label for="project_name_filter"> Highlight Text: </label>
-                <input id="project_name_filter"
-                       name="highlightInput"
-                       type="text"
-                       ng-minlength="1"
-                       ng-maxlength="100"
-                       class="form-control"
-                       ng-model="filter.textSearch" />
+        <div class="center well" ng-show="hasBeenParsed">
+            <div>
+                <img src="../img/pivotal_tracker_icon.png" /><span data-toggle="collapse" data-target="#pivotal"><b> Pivotal Tracker (PT) Integration</b></span>
+            </div>
+            <div id="pivotal" class="collapse">
+                <div class="pad">
+                    <p>Integrate with Pivotal Tracker here. Update with your project's ProjectID, and your personal API Token in order to check against a project for any stories/bugs that may match the description of the parsed error message.</p>
                 </div>
 
-            <div ng-if="lumberJackForm.$dirty" ng-messages="lumberJackForm.highlightInput.$error" style="color:red" role="alert">
-                <ng-message when="minlength" translate>Minimum highlight length not met. (1)</ng-message>
-                <ng-message when="maxlength" translate>Maximum hightlight length exceeded. (100)</ng-message>
-            </div>
+                <div class="pad">
+                    <label>Project ID</label>
+                    <input type="text"
+                           name="pivotalTrackerProject"
+                           ng-minlength="3"
+                           ng-maxlength="30"
+                           ng-model="pivotalTrackerProjectID"
+                           class="form-control" />
+                </div>
+                <div ng-if="lumberJackForm.$dirty" ng-messages="lumberJackForm.pivotalTrackerProject.$error" style="color:red" role="alert">
+                    <ng-message when="minlength" translate>Minimum length not met. (3)</ng-message>
+                    <ng-message when="maxlength" translate>Maximum length exceeded. (30)</ng-message>
+                </div>
 
-            <div class="row">
-                <button type="button"
-                        class="btn btn-info"
-                        ng-disabled="!lumberJackForm.$valid"
-                        ng-click="highlightText()">
-                    Highlight Text
-                </button>
+                <div class="pad">
+                    <label>User API Token</label>
+                    <input type="text"
+                           name="pivotalTrackerAPI"
+                           ng-minlength="5"
+                           ng-maxlength="100"
+                           ng-model="pivotalTrackerAPIToken"
+                           class="form-control" />
+                </div>
+                <div ng-if="lumberJackForm.$dirty" ng-messages="lumberJackForm.pivotalTrackerAPI.$error" style="color:red" role="alert">
+                    <ng-message when="minlength" translate>Minimum length not met. (5)</ng-message>
+                    <ng-message when="maxlength" translate>Maximum length exceeded. (100)</ng-message>
+                </div>
+
+                <div class="pad">
+                    <button ng-disabled="lumberJackForm.pivotalTrackerAPI.$error.minlength || lumberJackForm.pivotalTrackerProject.$error.maxlength" ng-click="executeTrackerApiFetch()" type="button" class="btn btn-primary pull">
+                        Check for Existing PT Stories
+                    </button>
+                </div>
+                <div class="pad" ng-if="matchedStories.length > 0">
+                    <div><span>Matched Stories:</span></div>
+                    <div>
+                        <ul ng-repeat="story in matchedStories">
+                            <li><a ng-click="goToStory(story.url)">{{story.name}}</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="center" ng-show="!hasBeenParsed">
-            <div class="row pad">
+        <div class="center well" ng-show="hasBeenParsed">
+            <div>
+                <span data-toggle="collapse" data-target="#highlight"><b> Highlighter Tool</b></span>
+            </div>
+            <div id="highlight" class="collapse">
+                <div class="pad">
+                    <label for="project_name_filter"> Highlight Text: </label>
+                    <input id="project_name_filter"
+                           name="highlightInput"
+                           type="text"
+                           ng-minlength="1"
+                           ng-maxlength="100"
+                           class="form-control"
+                           ng-model="filter.textSearch" />
+                </div>
+
+                <div class="pad" ng-if="lumberJackForm.$dirty" ng-messages="lumberJackForm.highlightInput.$error" style="color:red" role="alert">
+                    <ng-message when="minlength" translate>Minimum highlight length not met. (1)</ng-message>
+                    <ng-message when="maxlength" translate>Maximum hightlight length exceeded. (100)</ng-message>
+                </div>
+
+                <div class="pad">
+                    <button type="button"
+                            class="btn btn-info"
+                            ng-disabled="lumberJackForm.highlightInput.minlength || lumberJackForm.highlightInput.maxlength"
+                            ng-click="highlightText()">
+                        Highlight Text
+                    </button>
+                </div>
+            </div>          
+        </div>
+
+        <div class="center well" ng-show="!hasBeenParsed">
+            <div>
+                <h5>Parsing Tool</h5>
+            </div>
+            <div class="pad">
                 <input disabled
                        type="checkbox"
                        ng-model="filter.removeOuterElement" />
                 <span>Remove outer element on parse</span>
             </div>
-            <div class="row pad">
+            <div class="pad">
                 <label>Block to Parse:</label>
                 <textarea id="text_entry"
                           name="parseInput"
@@ -84,7 +149,10 @@
         </div>
 
         <div class="center" ng-show="hasBeenParsed">
-            <div ng-repeat="outPut in parseOutPut">
+            <div class="pad">
+                <h4>Results:</h4>
+            </div>
+            <div class="pad" ng-repeat="outPut in parseOutPut">
                 <div class="col-md-4">
                     <span id="property_output_{{$index}}"><b>Property Name</b>:{{outPut.Name}}</span>
                 </div>

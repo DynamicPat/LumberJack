@@ -6,9 +6,28 @@ angular.module('LumberJack', ['ngMessages'])
             textSearch: "NewStreamline",
             removeOuterElement: true
         };
+        $scope.pivotalTrackerProjectID = "123456";
+        $scope.pivotalTrackerAPIToken = "ex4mp13";
+        $scope.matchedStories = [];
         $scope.parse = parse;
+        $scope.checkTrackerItemsValid = checkTrackerItemsValid;
         $scope.clear = clear;
         $scope.highlightText = highlightText;
+        $scope.executeTrackerApiFetch = executeTrackerApiFetch;
+        $scope.goToStory = goToStory;
+
+        function checkTrackerItemsValid() {
+            var invalid = true;
+
+            if ($scope.pivotalTrackerProjectID.length > 3) {
+                invalid = false;
+            }
+            if ($scope.pivotalTrackerAPIToken.length > 5) {
+                invalid = false;
+            }
+
+            return invalid;
+        }
 
         function clear() {
             $scope.parseBlock = "";
@@ -18,11 +37,42 @@ angular.module('LumberJack', ['ngMessages'])
         }
 
         function cutElement(value, element) {
-            return value.substring(value.indexOf(element.Name, value.indexOf(element.Name) - 1 + element.TotalLength) + element.TotalLength - 1).trim();
+            return value.substring(value.indexOf(("/" + element.Name.trim()), value.indexOf(element.Name) - 1 + element.TotalLength) + element.TotalLength).trim();
         }
 
         function cutOuterElement(value) {
             return value.substring(value.indexOf("<", 2), value.lastIndexOf("<", value.lastIndexOf("<"))).trim();
+        }
+
+        function executeTrackerApiFetch() {
+            // compose request URL
+            var url = 'https://www.pivotaltracker.com/services/v5';
+            url += '/projects/' + $scope.pivotalTrackerProjectID;
+            url += '/stories?filter=description:';
+
+            if ($scope.parseOutPut.length > 0) {
+                for (var i = 0; i < $scope.parseOutPut.length; i++) {
+                    var iterationOutput = $scope.parseOutPut[i];
+                    var iterationUrl = url;
+                    if (iterationOutput.Value.trim().length > 0) {
+                        iterationUrl += '"' + iterationOutput.Value + '"';
+                        $.ajax({
+                            url: iterationUrl,
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('X-TrackerToken', $scope.pivotalTrackerAPIToken);
+                            },
+                            success: function (stories) {
+                                if (stories != null && stories.length > 0) {
+                                    $scope.matchedStories.push(stories);
+                                }
+                            },
+                            fail: function (errorData) {
+
+                            }
+                        });
+                    }
+                }
+            }            
         }
 
         function getElementValue(value, elementLength) {
@@ -46,6 +96,10 @@ angular.module('LumberJack', ['ngMessages'])
 
         function getOuterElementPropertyName(value) {
             return value.substring(value.indexOf("<") + 1, value.indexOf(">"));
+        }
+
+        function goToStory(url) {
+            window.open(url);
         }
 
         function hasNextElement(value) {
@@ -84,7 +138,6 @@ angular.module('LumberJack', ['ngMessages'])
             $scope.hasBeenParsed = true;
             $scope.parseOutPut = items;
         }
-
     });
 
 
